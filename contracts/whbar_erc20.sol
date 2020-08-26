@@ -23,7 +23,7 @@ contract whbar is ERC20Burnable, ERC20Detailed {
         _burn(msg.sender, amount);
     }
     function burnFrom(uint256 amount, address account, address accountId) public {
-        _burnFrom(msg.sender, amount);
+        _burnFrom(account, amount);
     }
     function mint(uint256 amount, address account) public {
         require(msg.sender == validator);

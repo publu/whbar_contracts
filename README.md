@@ -8,3 +8,17 @@ whbar_erc20.sol mints wrapped hbars through a Gnosis Safe which collects enough 
 
 On the way back. The secure environment signs an "out" transaction. This is based on if the secure environment receives a block that contains the "burn" transaction and a valid account ID (X.X.X) which it can sign cryptotransfer to.
 
+# Running Tests
+
+Follow the instructions on https://fireflyblockchain.com/#firefly-wizard to get firefly installed and have the FIREFLY_TOKEN environment variable set up.
+
+Then after `npm install` you can just do `npm run fireflytests` and it will run all the commands to compile, test, and upload the report:
+
+```
+firefly compile
+firefly launch -p 8545 -d --shutdownable
+firefly test
+firefly coverage -p 8545
+firefly close -p 8545
+firefly upload
+```

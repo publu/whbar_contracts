@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Burnable.sol";
-import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
 contract whbar is ERC20Burnable, ERC20Detailed {
     address validator;
@@ -23,7 +23,7 @@ contract whbar is ERC20Burnable, ERC20Detailed {
         _burn(msg.sender, amount);
     }
     function burnFrom(uint256 amount, address account, address accountId) public {
-        _burnFrom(msg.sender, amount);
+        _burnFrom(account, amount);
     }
     function mint(uint256 amount, address account) public {
         require(msg.sender == validator);

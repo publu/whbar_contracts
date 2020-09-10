@@ -1,20 +1,17 @@
-pragma solidity =0.5.0;
+pragma solidity ^0.5.0;
 
-contract hbar_filter {
-    address payable admin;
-    uint min = 0;
-    bool pause = false;
-    constructor() public {
-        admin = msg.sender;
-    }
-    function getPause() view public returns(bool){
-      return pause;
-    }
-    function getMin() view public returns(uint){
-      return min;
-    }
-    function getAdmin() view public returns(address){
-      return admin;
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Burnable.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Detailed.sol";
+
+contract whbar is ERC20Burnable, ERC20Detailed {
+    address validator;
+    address admin;
+    bool pause;
+    event withdrawWHBAR(address accountId, uint256 amount);
+    constructor (address v, address a) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
+        validator=v;
+        admin=a;
+        pause=false;
     }
     function togglePause() public {
         require(admin==msg.sender);
@@ -24,18 +21,32 @@ contract hbar_filter {
           pause=true;
         }
     }
-    function changeMin(uint m) public {
-        require(admin == msg.sender);
-        require(m >= 0);
-        min = m;
+    function getPause() view public returns(bool){
+      return pause;
     }
-    function changeAdmin(address payable newOwner) public {
-        require(admin == msg.sender);
-        admin=newOwner;
+    function getManagers() view public returns(address, address){
+      return (admin, validator);
     }
-    function deposit() public payable {
-      require(msg.value >= min);
-      admin.transfer(msg.value);
+    function updateValidator(address v) public {
+        require(msg.sender==admin);
+        validator = v;
     }
-    // withdraw is done via multi-sig wallet
+    function updateAdmin(address a) public {
+        require(msg.sender==admin);
+        admin=a;
+    }
+    function burn(uint256 amount, address accountId) public {
+        require(!pause);
+        _burn(msg.sender, amount);
+        emit withdrawWHBAR(accountId, amount);
+    }
+    function burnFrom(uint256 amount, address account, address accountId) public {
+        require(!pause);
+        _burnFrom(account, amount);
+        emit withdrawWHBAR(accountId, amount);
+    }
+    function mint(uint256 amount, address account) public {
+        require(msg.sender == validator);
+        _mint(account, amount * (10 ** uint256(decimals())));
+    }
 }

@@ -1,32 +1,41 @@
-pragma solidity ^0.5.0;
+pragma solidity =0.5.0;
 
-import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Burnable.sol";
-import "github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.1/contracts/token/ERC20/ERC20Detailed.sol";
-
-contract whbar is ERC20Burnable, ERC20Detailed {
-    address validator;
-    address admin;
-    
-    constructor (address v, address a) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
-        validator=v;
-        admin=a;
+contract hbar_filter {
+    address payable admin;
+    uint min = 0;
+    bool pause = false;
+    constructor() public {
+        admin = msg.sender;
     }
-    function updateValidator(address v) public {
-        require(msg.sender==admin);
-        validator = v;
+    function getPause() view public returns(bool){
+      return pause;
     }
-    function updateAdmin(address a) public {
-        require(msg.sender==admin);
-        admin=a;
+    function getMin() view public returns(uint){
+      return min;
     }
-    function burn(uint256 amount, address accountId) public {
-        _burn(msg.sender, amount);
+    function getAdmin() view public returns(address){
+      return admin;
     }
-    function burnFrom(uint256 amount, address account, address accountId) public {
-        _burnFrom(msg.sender, amount);
+    function togglePause() public {
+        require(admin==msg.sender);
+        if(pause){
+          pause=false;
+        }else{
+          pause=true;
+        }
     }
-    function mint(uint256 amount, address account) public {
-        require(msg.sender == validator);
-        _mint(account, amount * (10 ** uint256(decimals())));
+    function changeMin(uint m) public {
+        require(admin == msg.sender);
+        require(m >= 0);
+        min = m;
     }
+    function changeAdmin(address payable newOwner) public {
+        require(admin == msg.sender);
+        admin=newOwner;
+    }
+    function deposit() public payable {
+      require(msg.value >= min);
+      admin.transfer(msg.value);
+    }
+    // withdraw is done via multi-sig wallet
 }

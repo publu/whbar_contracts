@@ -8,9 +8,9 @@ contract whbar is ERC20Burnable, ERC20Detailed {
     address admin;
     bool pause;
     event withdrawWHBAR(address accountId, uint256 amount);
-    constructor (address v, address a) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
+    constructor (address v) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
         validator=v;
-        admin=a;
+        admin=msg.sender;
         pause=false;
     }
     function togglePause() public {
@@ -34,6 +34,12 @@ contract whbar is ERC20Burnable, ERC20Detailed {
     function updateAdmin(address a) public {
         require(msg.sender==admin);
         admin=a;
+    }
+    function burn(uint256 amount) public{
+        revert();
+    }
+    function burnFrom(address account, uint256 amount) public {
+        revert();
     }
     function burn(uint256 amount, address accountId) public {
         require(!pause);

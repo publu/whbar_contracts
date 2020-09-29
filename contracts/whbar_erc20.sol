@@ -9,16 +9,16 @@ contract whbar is ERC20Burnable, ERC20Detailed {
     bool pause;
     event withdrawWHBAR(address accountId, uint256 fee, uint256 burn);
     event mintWHBAR(address accountId, uint256 fee, uint256 amount);
-    constructor (address v) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
-        validator=v;
-        admin=msg.sender;
+    constructor (address v, address a) public payable ERC20Detailed("WrappedHBAR", "WHBAR", 8) {
+        validator=a;
+        admin=validator;
         pause=false;
-        wMin = 25000000000000;  //  250,000 hbar minimum
-        wPer = 25;              //  0.25% tx fee
-        wFee = 0;               //  0 HBAR Fee
-        uMin = 25000000000000;  //  250,000 hbar minimum
-        uPer = 25;              //  0.25%
-        uFee = 0;               //  0 HBAR Fee
+        wMin = 100000000000;    //  250,000 hbar minimum
+        wPer = 0;               //  0.25% tx fee
+        wFee = 100000000000;    //  1,000 HBAR Fee
+        uMin = 100000000000;    //  250,000 hbar minimum
+        uPer = 0;               //  0.25%
+        uFee = 100000000000;    //  1,000 HBAR Fee
     }
     uint wMin;
     uint wPer;
@@ -116,9 +116,11 @@ contract whbar is ERC20Burnable, ERC20Detailed {
             // the burn_ is the amount emitted to the account id on hedera
             uint burn_ = amount - fee;
             require(burn_>=0);
-            // the total amount is burned
+            // the total amount is burned = burn_
             _burnFrom(account, amount);
-            // for best dev-ing we use events 
+            // admin group gets the fee.
+            _mint(admin, fee);
+            // for best dev-ing we use events
             // this will allow us to track the burn events efficiently.
             emit withdrawWHBAR(accountId, fee, burn_);
         }else{
@@ -139,11 +141,12 @@ contract whbar is ERC20Burnable, ERC20Detailed {
         // then we subtract the fee from amount
         fee=fee+wFee;
         uint mint_ = amount - fee;
+        // lets make sure the mint value is more than 0. else it can't work.
         require(mint_>=0);
         // we mint the amount to the user
         _mint(account, mint_);
-        // and the fee to the validator group
-        _mint(validator, fee);
+        // and the fee to the admin group
+        _mint(admin, fee);
         emit mintWHBAR(account, fee, amount);
     }
 }
